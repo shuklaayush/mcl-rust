@@ -327,7 +327,9 @@ macro_rules! str_impl {
                 if n == 0 {
                     panic!("mclBnFr_getStr");
                 }
-                unsafe { core::str::from_utf8_unchecked(&buf[0..n]).into() }
+                core::str::from_utf8(&buf[0..n])
+                    .expect("MCL returned non-UTF-8 data")
+                    .into()
             }
         }
     };
