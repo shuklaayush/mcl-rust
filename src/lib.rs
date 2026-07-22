@@ -88,6 +88,8 @@ extern "C" {
     fn mclBn_getVersion() -> u32;
     fn mclBn_getFrByteSize() -> u32;
     fn mclBn_getFpByteSize() -> u32;
+    fn mclBn_getG1ByteSize() -> u32;
+    fn mclBn_getG2ByteSize() -> u32;
     fn mclBn_getCurveOrder(buf: *mut u8, maxBufSize: usize) -> usize;
     fn mclBn_getFieldOrder(buf: *mut u8, maxBufSize: usize) -> usize;
     fn mclBn_pairing(z: *mut GT, x: *const G1, y: *const G2);
@@ -611,7 +613,7 @@ common_impl![G1, mclBnG1_isEqual, mclBnG1_isZero];
 is_valid_impl![G1, mclBnG1_isValid];
 serialize_impl![
     G1,
-    mclBn_getFpByteSize(),
+    mclBn_getG1ByteSize(),
     mclBnG1_serialize,
     mclBnG1_deserialize
 ];
@@ -637,7 +639,7 @@ common_impl![G2, mclBnG2_isEqual, mclBnG2_isZero];
 is_valid_impl![G2, mclBnG2_isValid];
 serialize_impl![
     G2,
-    mclBn_getFpByteSize() * 2,
+    mclBn_getG2ByteSize(),
     mclBnG2_serialize,
     mclBnG2_deserialize
 ];
@@ -691,11 +693,11 @@ pub fn get_fp_serialized_size() -> u32 {
 }
 
 pub fn get_g1_serialized_size() -> u32 {
-    get_fp_serialized_size()
+    unsafe { mclBn_getG1ByteSize() }
 }
 
 pub fn get_g2_serialized_size() -> u32 {
-    get_fp_serialized_size() * 2
+    unsafe { mclBn_getG2ByteSize() }
 }
 
 pub fn get_gt_serialized_size() -> u32 {

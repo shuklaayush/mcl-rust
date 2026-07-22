@@ -259,4 +259,9 @@ fn test_all() {
     testCurve(CurveType::BN254);
     testCurve(CurveType::BLS12_381);
     testCurve(CurveType::BLS12_377);
+
+    assert!(init(CurveType::BN_P256));
+    let mut point = G1::zero();
+    assert!(point.set_hash_of(b"abc"));
+    assert_eq!(point.serialize().len(), get_g1_serialized_size() as usize);
 }
