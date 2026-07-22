@@ -260,3 +260,9 @@ fn test_all() {
     testCurve(CurveType::BLS12_381);
     testCurve(CurveType::BLS12_377);
 }
+
+#[test]
+#[should_panic(expected = "point and scalar counts differ")]
+fn mul_vec_rejects_mismatched_lengths() {
+    G1::mul_vec(&mut G1::zero(), &[G1::zero()], &[]);
+}

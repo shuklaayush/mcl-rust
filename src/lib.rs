@@ -508,6 +508,7 @@ macro_rules! ec_impl {
                 unsafe { $set_hash_and_map_fn(self, buf.as_ptr(), buf.len()) == 0 }
             }
             pub fn mul_vec(z: &mut $t, x: &[$t], y: &[Fr]) {
+                assert_eq!(x.len(), y.len(), "point and scalar counts differ");
                 unsafe { $mul_vec_fn(z, x.as_ptr(), y.as_ptr(), x.len()) }
             }
         }
