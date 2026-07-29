@@ -1,8 +1,8 @@
-use std::path::Path;
-use std::process::Command;
+use std::{env, path::Path, process::Command};
 
 fn main() {
-    let target_arch = std::env::var("CARGO_CFG_TARGET_ARCH").unwrap_or_default();
+    let target_arch = env::var("CARGO_CFG_TARGET_ARCH").unwrap_or_default();
+    let target_family = env::var("CARGO_CFG_TARGET_FAMILY").unwrap_or_default();
     if target_arch == "wasm32" {
         build_wasm();
         return;
@@ -12,6 +12,13 @@ fn main() {
     config
         .define("MCL_STATIC_LIB", "ON")
         .define("MCL_STANDALONE", "ON");
+
+    if target_family == "unix" && env::var_os("CARGO_FEATURE_HIDDEN_NATIVE_SYMBOLS").is_some() {
+        config
+            .define("CMAKE_C_VISIBILITY_PRESET", "hidden")
+            .define("CMAKE_CXX_VISIBILITY_PRESET", "hidden")
+            .define("CMAKE_VISIBILITY_INLINES_HIDDEN", "ON");
+    }
 
     // On non-x86_64 targets mcl compiles LLVM IR (*.ll) directly with clang++,
     // so it must be specified explicitly; otherwise CMake aborts with
@@ -31,8 +38,8 @@ fn main() {
 // for wasm32-unknown-unknown and links into both wasm32-unknown-unknown and
 // wasm32-wasi Rust binaries.
 fn build_wasm() {
-    let out_dir = std::env::var("OUT_DIR").unwrap();
-    let manifest = std::env::var("CARGO_MANIFEST_DIR").unwrap();
+    let out_dir = env::var("OUT_DIR").unwrap();
+    let manifest = env::var("CARGO_MANIFEST_DIR").unwrap();
     let mcl = Path::new(&manifest).join("mcl");
     let fp_cpp = mcl.join("src/fp.cpp");
     let obj = Path::new(&out_dir).join("fp.o");
@@ -102,12 +109,12 @@ fn build_wasm() {
 //      clang++-18 / llvm-ar-18 (same convention as mcl/Makefile.wasm);
 //   3. the bare name (clang++ / llvm-ar).
 fn find_tool(override_env: &str, base: &str) -> String {
-    if let Ok(v) = std::env::var(override_env) {
+    if let Ok(v) = env::var(override_env) {
         if !v.is_empty() {
             return v;
         }
     }
-    if let Ok(ver) = std::env::var("CLANG_VER") {
+    if let Ok(ver) = env::var("CLANG_VER") {
         if !ver.is_empty() {
             return format!("{}{}", base, ver);
         }

@@ -16,6 +16,17 @@ cargo build
 cargo test
 ```
 
+# Embedding in shared libraries
+
+Enable `hidden-native-symbols` when statically linking `mcl_rust` into a shared
+library on Unix. It compiles MCL's native C/C++ implementation and global state
+with hidden visibility so another MCL copy in the process cannot interpose on
+them.
+
+The final shared-library linker still owns its exported API. On ELF, use a
+version script or `-Wl,--exclude-libs,ALL` when linking the shared library so
+symbols from MCL's handwritten assembly are not exported.
+
 # WebAssembly
 
 A browser and Node.js share the same `wasm32-unknown-unknown` artifact; only the
